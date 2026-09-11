@@ -430,11 +430,15 @@
                         <button class="btn-icon" id="btn-toggle-token" title="Mostrar/ocultar">
                             <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5-8-5.5-8-5.5Z"/><circle cx="10" cy="10" r="2.3"/></svg>
                         </button>
-                        <button class="btn-icon" data-copy="{{ $ingestToken }}" title="Copiar">
+                        <button class="btn-icon" id="btn-copy-token" data-copy="{{ $ingestToken }}" title="Copiar">
                             <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg>
                         </button>
+                        <button class="btn-secondary" id="btn-regenerate-token" style="flex-shrink:0;">
+                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3.5V8h-4.5"/></svg>
+                            Gerar novo
+                        </button>
                     </div>
-                    <p class="code-hint">Definido em <code style="font-family:ui-monospace,monospace;">INGEST_API_TOKEN</code> no <code style="font-family:ui-monospace,monospace;">.env</code> do painel. Trocar lá muda o valor aqui também. Não compartilhe — quem tiver esse token consegue criar/editar respondentes.</p>
+                    <p class="code-hint">Gerado automaticamente e guardado no banco. Não compartilhe — quem tiver esse token consegue criar/editar respondentes. Gerar um novo <strong>invalida o anterior na hora</strong> — o bot vai precisar ser atualizado com o novo valor.</p>
 
                     <hr class="section-divider">
 
@@ -680,6 +684,23 @@
         const visible = codeEl.dataset.visible === '1';
         codeEl.textContent = visible ? '••••••••••••••••••••••••' : codeEl.dataset.token;
         codeEl.dataset.visible = visible ? '0' : '1';
+    });
+
+    document.getElementById('btn-regenerate-token').addEventListener('click', async () => {
+        if (!confirm('Gerar um novo token vai invalidar o atual imediatamente. O bot vai parar de conseguir enviar dados até você atualizar o token nele. Continuar?')) {
+            return;
+        }
+        const res = await api('{{ route('integration.token.regenerate') }}', { method: 'POST' });
+        if (!res.ok) {
+            alert('Erro ao gerar novo token.');
+            return;
+        }
+        const { token } = await res.json();
+        const codeEl = document.getElementById('ingest-token');
+        codeEl.dataset.token = token;
+        codeEl.dataset.visible = '1';
+        codeEl.textContent = token;
+        document.getElementById('btn-copy-token').dataset.copy = token;
     });
 
     document.querySelectorAll('[data-copy]').forEach((btn) => {

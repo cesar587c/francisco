@@ -24,4 +24,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard-data', [DashboardDataController::class, 'index'])->name('dashboard-data.index');
     Route::post('/dashboard-data', [DashboardDataController::class, 'store'])->name('dashboard-data.store');
     Route::delete('/respondents/{respondent}', [RespondentController::class, 'destroy'])->name('respondents.destroy');
+    Route::post('/integration/token', [DashboardController::class, 'regenerateToken'])->name('integration.token.regenerate');
 });

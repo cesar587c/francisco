@@ -17,15 +17,7 @@ return [
         'password' => env('ADMIN_PASSWORD', 'password'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Token de ingestão (bot -> dashboard)
-    |--------------------------------------------------------------------------
-    |
-    | O bot do WhatsApp envia este token no header X-Ingest-Token para
-    | alimentar os endpoints POST /api/ingest/*.
-    |
-    */
-    'ingest_token' => env('INGEST_API_TOKEN'),
+    // O token de ingestão (bot -> dashboard) não vem mais do .env: é gerado
+    // automaticamente e guardado no banco. Ver App\Services\IngestTokenManager.
 
 ];

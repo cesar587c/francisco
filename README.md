@@ -34,7 +34,6 @@ esquerda, centro ou direita?" (`resposta_2`).
 2. Copie `.env.example` para `.env` e configure:
    - `DB_*`: crie previamente o banco MySQL indicado em `DB_DATABASE`.
    - `ADMIN_EMAIL` / `ADMIN_PASSWORD`: única conta que poderá logar.
-   - `INGEST_API_TOKEN`: precisa ser igual ao token configurado no bot.
 3. Rode as migrations e o seeder:
    ```
    php artisan migrate --seed
@@ -44,6 +43,9 @@ esquerda, centro ou direita?" (`resposta_2`).
    php artisan serve
    ```
 5. Acesse `/login` com as credenciais de `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+6. Na aba **Integração** do painel você encontra a URL da API e o token
+   (gerado automaticamente e guardado no banco — dá pra gerar um novo a
+   qualquer momento por lá) que o bot precisa usar no header `X-Ingest-Token`.
 
 Rodar `php artisan db:seed` novamente atualiza a senha do admin se você
 alterar `ADMIN_PASSWORD` no `.env`.
@@ -61,5 +63,5 @@ alterar `ADMIN_PASSWORD` no `.env`.
 | POST | `/api/ingest/responses` | Salva uma resposta |
 | PATCH | `/api/ingest/respondents/{phone}/state` | Atualiza passo/conclusão da conversa |
 
-As três rotas de `/api/ingest/*` exigem o header
-`X-Ingest-Token: <INGEST_API_TOKEN>`.
+As três rotas de `/api/ingest/*` exigem o header `X-Ingest-Token` com o
+valor mostrado na aba Integração do painel.
