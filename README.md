@@ -73,8 +73,12 @@ conveniente para quem está integrando.
   mesmo número sempre bate com o mesmo respondente independente de como
   for enviado.
 - `name` (obrigatório): nome do respondente.
-- `answers` (opcional): objeto `{"pergunta": "resposta"}` — manda só quando
-  tiver a informação; cada chamada pode incluir uma, várias ou nenhuma.
+- `question` + `answer` (opcionais, mas um exige o outro): uma resposta por
+  vez, como texto simples — útil para ferramentas de automação que disparam
+  uma chamada por pergunta (ex.: `"question": "resposta_1", "answer": "Sim"`).
+- `answers` (opcional): objeto `{"pergunta": "resposta"}` — alternativa para
+  mandar várias respostas de uma vez na mesma chamada. Pode ser usado junto
+  com `question`/`answer` na mesma requisição.
 - `completed` (opcional): `true`/`false`; se omitido, o sistema calcula
   sozinho a partir da quantidade de respostas já recebidas.
 - `conversation_step` (opcional): 0–4; normalmente não precisa ser enviado,

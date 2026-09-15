@@ -424,10 +424,8 @@
                   -d '{
                     "phone": "5561999999999",
                     "name": "Maria Souza",
-                    "answers": {
-                      "resposta_1": "O que mais te incomoda em Águas Claras ou no DF?",
-                      "resposta_2": "Centro"
-                    },
+                    "question": "resposta_1",
+                    "answer": "Centro",
                     "completed": true
                   }'
                 CURL;
@@ -473,9 +471,9 @@
                             <code>{{ $apiBaseUrl }}/respondents</code>
                             <button class="btn-icon" data-copy="{{ $apiBaseUrl }}/respondents" title="Copiar"><svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg></button>
                         </div>
-                        <p class="endpoint-body">Tudo de uma vez: <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim", "resposta_2": "Ótimo"}, "completed": true}</code></p>
-                        <p class="endpoint-body">Ou dividido, em quantas chamadas quiser — ex.: primeiro só <code>{"phone": "5561999999999", "name": "Maria Souza"}</code>, depois <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim"}}</code>, e assim por diante.</p>
-                        <p class="code-hint">Campos: <code>phone</code> (obrigatório) e <code>name</code> (obrigatório) identificam o respondente. <code>answers</code> (opcional, objeto <code>{"pergunta": "resposta"}</code>) e <code>completed</code> (opcional, true/false) você manda só quando tiver a informação — se <code>completed</code> não for enviado, o sistema calcula sozinho a partir da quantidade de respostas em <code>answers</code>.</p>
+                        <p class="endpoint-body">Uma resposta por chamada: <code>{"phone": "5561999999999", "name": "Maria Souza", "question": "resposta_1", "answer": "Sim"}</code></p>
+                        <p class="endpoint-body">Ou várias de uma vez, com <code>answers</code>: <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim", "resposta_2": "Ótimo"}, "completed": true}</code></p>
+                        <p class="code-hint">Campos: <code>phone</code> (obrigatório) e <code>name</code> (obrigatório) identificam o respondente. Para a resposta, use <code>question</code> + <code>answer</code> (uma por chamada) <strong>ou</strong> <code>answers</code> (objeto com várias de uma vez) — os dois são opcionais e podem até ser combinados na mesma chamada. <code>completed</code> (opcional, true/false) você manda só quando quiser fechar a pesquisa — se não enviar, o sistema calcula sozinho a partir da quantidade de respostas recebidas.</p>
                         <p class="code-hint"><code>phone</code> aceita qualquer formatação (<code>+55 31 9362-5358</code>, <code>(31) 99362-5358</code>, só números etc.) — o sistema ignora tudo que não for dígito, então o mesmo número sempre é reconhecido como o mesmo respondente.</p>
 
                         <div class="field-label" style="margin-top:16px;">Exemplo pronto (com todos os campos)</div>

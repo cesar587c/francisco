@@ -19,9 +19,11 @@ class IngestController extends Controller
      *
      * Pode ser chamado várias vezes ao longo da conversa: a cada chamada,
      * cria o respondente se ainda não existir (phone é a chave única),
-     * atualiza o nome, grava/atualiza as respostas informadas em "answers"
-     * e recalcula o andamento da conversa — a menos que conversation_step
-     * ou completed sejam informados explicitamente.
+     * atualiza o nome, grava/atualiza as respostas e recalcula o andamento
+     * da conversa — a menos que conversation_step ou completed sejam
+     * informados explicitamente. As respostas podem vir como um par
+     * "question"/"answer" (uma por chamada) e/ou como um objeto "answers"
+     * (várias de uma vez); os dois formatos podem ser usados juntos.
      */
     public function upsertRespondent(Request $request): JsonResponse
     {
@@ -30,6 +32,8 @@ class IngestController extends Controller
             'name' => ['required', 'string'],
             'answers' => ['sometimes', 'array'],
             'answers.*' => ['nullable', 'string'],
+            'question' => ['sometimes', 'required_with:answer', 'string'],
+            'answer' => ['sometimes', 'required_with:question', 'string'],
             'conversation_step' => ['sometimes', 'integer', 'min:0', 'max:4'],
             'completed' => ['sometimes', 'boolean'],
         ]);
@@ -38,6 +42,12 @@ class IngestController extends Controller
 
         if ($phone === '') {
             return response()->json(['error' => 'Telefone inválido.'], 422);
+        }
+
+        $answers = $data['answers'] ?? [];
+
+        if (isset($data['question'], $data['answer'])) {
+            $answers[$data['question']] = $data['answer'];
         }
 
         $respondent = Respondent::firstOrNew(['phone' => $phone]);
@@ -52,7 +62,7 @@ class IngestController extends Controller
 
         $respondent->save();
 
-        foreach ($data['answers'] ?? [] as $question => $answer) {
+        foreach ($answers as $question => $answer) {
             $respondent->responses()->updateOrCreate(
                 ['question' => $question],
                 ['answer' => $answer]
@@ -61,7 +71,7 @@ class IngestController extends Controller
 
         if (array_key_exists('conversation_step', $data)) {
             $respondent->conversation_step = $data['conversation_step'];
-        } elseif (! empty($data['answers'])) {
+        } elseif (! empty($answers)) {
             $respondent->conversation_step = min(
                 Respondent::STEP_COMPLETED,
                 $respondent->responses()->count()
