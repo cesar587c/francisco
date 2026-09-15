@@ -254,6 +254,14 @@
         .endpoint-body { font-size: 12px; color: var(--ink-muted); margin: 6px 0 0; }
         .endpoint-body code { background: var(--page); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: ui-monospace, monospace; }
         .section-divider { border: none; border-top: 1px solid var(--grid); margin: 24px 0; }
+        .code-block-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+        .code-block {
+            flex: 1; min-width: 0; overflow-x: auto; white-space: pre;
+            background: var(--page); border: 1px solid var(--border); border-radius: 8px;
+            padding: 12px 14px; margin: 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px; line-height: 1.6; color: var(--ink);
+        }
     </style>
 </head>
 <body>
@@ -408,6 +416,22 @@
                 </div>
             </div>
 
+            @php
+                $curlExample = <<<CURL
+                curl -X POST '{$apiBaseUrl}/respondents' \
+                  -H 'Content-Type: application/json' \
+                  -H 'X-Ingest-Token: {$ingestToken}' \
+                  -d '{
+                    "phone": "5561999999999",
+                    "name": "Maria Souza",
+                    "answers": {
+                      "resposta_1": "O que mais te incomoda em Águas Claras ou no DF?",
+                      "resposta_2": "Centro"
+                    },
+                    "completed": true
+                  }'
+                CURL;
+            @endphp
             <div id="tab-integration" hidden>
                 <div class="card">
                     <div class="section-title" style="margin-bottom:18px;">
@@ -452,6 +476,15 @@
                         <p class="endpoint-body">Tudo de uma vez: <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim", "resposta_2": "Ótimo"}, "completed": true}</code></p>
                         <p class="endpoint-body">Ou dividido, em quantas chamadas quiser — ex.: primeiro só <code>{"phone": "5561999999999", "name": "Maria Souza"}</code>, depois <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim"}}</code>, e assim por diante.</p>
                         <p class="code-hint">Campos: <code>phone</code> (obrigatório) e <code>name</code> (obrigatório) identificam o respondente. <code>answers</code> (opcional, objeto <code>{"pergunta": "resposta"}</code>) e <code>completed</code> (opcional, true/false) você manda só quando tiver a informação — se <code>completed</code> não for enviado, o sistema calcula sozinho a partir da quantidade de respostas em <code>answers</code>.</p>
+
+                        <div class="field-label" style="margin-top:16px;">Exemplo pronto (com todos os campos)</div>
+                        <div class="code-block-row">
+                            <pre class="code-block" id="curl-example">{{ $curlExample }}</pre>
+                            <button class="btn-icon" id="btn-copy-curl" data-copy="{{ $curlExample }}" title="Copiar">
+                                <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg>
+                            </button>
+                        </div>
+                        <p class="code-hint">Já vem com a URL e o token atuais preenchidos — é só copiar e rodar no terminal para testar.</p>
                     </div>
                 </div>
             </div>
@@ -679,10 +712,16 @@
         }
         const { token } = await res.json();
         const codeEl = document.getElementById('ingest-token');
+        const oldToken = codeEl.dataset.token;
         codeEl.dataset.token = token;
         codeEl.dataset.visible = '1';
         codeEl.textContent = token;
         document.getElementById('btn-copy-token').dataset.copy = token;
+
+        const curlEl = document.getElementById('curl-example');
+        const updatedCurl = curlEl.textContent.replace(oldToken, token);
+        curlEl.textContent = updatedCurl;
+        document.getElementById('btn-copy-curl').dataset.copy = updatedCurl;
     });
 
     document.querySelectorAll('[data-copy]').forEach((btn) => {
