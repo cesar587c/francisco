@@ -27,6 +27,14 @@ class IngestController extends Controller
      */
     public function upsertRespondent(Request $request): JsonResponse
     {
+        if (is_string($request->input('completed'))) {
+            $normalized = filter_var($request->input('completed'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+            if ($normalized !== null) {
+                $request->merge(['completed' => $normalized]);
+            }
+        }
+
         $data = $request->validate([
             'phone' => ['required', 'string'],
             'name' => ['required', 'string'],
