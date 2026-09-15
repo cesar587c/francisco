@@ -34,7 +34,13 @@ class IngestController extends Controller
             'completed' => ['sometimes', 'boolean'],
         ]);
 
-        $respondent = Respondent::firstOrNew(['phone' => $data['phone']]);
+        $phone = preg_replace('/\D+/', '', $data['phone']);
+
+        if ($phone === '') {
+            return response()->json(['error' => 'Telefone inválido.'], 422);
+        }
+
+        $respondent = Respondent::firstOrNew(['phone' => $phone]);
         $isNew = ! $respondent->exists;
 
         $respondent->name = $data['name'];

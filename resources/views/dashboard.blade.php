@@ -476,6 +476,7 @@
                         <p class="endpoint-body">Tudo de uma vez: <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim", "resposta_2": "Ótimo"}, "completed": true}</code></p>
                         <p class="endpoint-body">Ou dividido, em quantas chamadas quiser — ex.: primeiro só <code>{"phone": "5561999999999", "name": "Maria Souza"}</code>, depois <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim"}}</code>, e assim por diante.</p>
                         <p class="code-hint">Campos: <code>phone</code> (obrigatório) e <code>name</code> (obrigatório) identificam o respondente. <code>answers</code> (opcional, objeto <code>{"pergunta": "resposta"}</code>) e <code>completed</code> (opcional, true/false) você manda só quando tiver a informação — se <code>completed</code> não for enviado, o sistema calcula sozinho a partir da quantidade de respostas em <code>answers</code>.</p>
+                        <p class="code-hint"><code>phone</code> aceita qualquer formatação (<code>+55 31 9362-5358</code>, <code>(31) 99362-5358</code>, só números etc.) — o sistema ignora tudo que não for dígito, então o mesmo número sempre é reconhecido como o mesmo respondente.</p>
 
                         <div class="field-label" style="margin-top:16px;">Exemplo pronto (com todos os campos)</div>
                         <div class="code-block-row">

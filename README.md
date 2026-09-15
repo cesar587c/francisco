@@ -67,7 +67,11 @@ obrigatórios — não há uma ordem fixa de chamadas: dá pra mandar tudo em um
 única requisição ou dividir em quantas chamadas quiser, como for mais
 conveniente para quem está integrando.
 
-- `phone` (obrigatório): identifica o respondente.
+- `phone` (obrigatório): identifica o respondente. Aceita qualquer
+  formatação (`+55 31 9362-5358`, `(31) 99362-5358`, `5531993625358`, etc.)
+  — o sistema remove tudo que não for dígito antes de comparar, então o
+  mesmo número sempre bate com o mesmo respondente independente de como
+  for enviado.
 - `name` (obrigatório): nome do respondente.
 - `answers` (opcional): objeto `{"pergunta": "resposta"}` — manda só quando
   tiver a informação; cada chamada pode incluir uma, várias ou nenhuma.
