@@ -62,8 +62,16 @@ alterar `ADMIN_PASSWORD` no `.env`.
 | POST | `/api/ingest/respondents` | Endpoint único: cria/atualiza respondente por telefone, grava respostas (`answers`) e atualiza passo/conclusão da conversa |
 
 A rota `/api/ingest/respondents` exige o header `X-Ingest-Token` com o
-valor mostrado na aba Integração do painel. Pode ser chamada várias vezes ao
-longo da conversa (uma por mensagem), enviando `phone` + `name` sempre, e
-`answers` (objeto `{"pergunta": "resposta"}`) conforme as respostas chegam.
-`conversation_step` e `completed` são opcionais — se omitidos, o sistema
-calcula sozinho a partir da quantidade de respostas recebidas.
+valor mostrado na aba Integração do painel. Só `phone` e `name` são
+obrigatórios — não há uma ordem fixa de chamadas: dá pra mandar tudo em uma
+única requisição ou dividir em quantas chamadas quiser, como for mais
+conveniente para quem está integrando.
+
+- `phone` (obrigatório): identifica o respondente.
+- `name` (obrigatório): nome do respondente.
+- `answers` (opcional): objeto `{"pergunta": "resposta"}` — manda só quando
+  tiver a informação; cada chamada pode incluir uma, várias ou nenhuma.
+- `completed` (opcional): `true`/`false`; se omitido, o sistema calcula
+  sozinho a partir da quantidade de respostas já recebidas.
+- `conversation_step` (opcional): 0–4; normalmente não precisa ser enviado,
+  o sistema também calcula sozinho.
