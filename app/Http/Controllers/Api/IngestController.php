@@ -24,9 +24,21 @@ class IngestController extends Controller
      * informados explicitamente. As respostas podem vir como um par
      * "question"/"answer" (uma por chamada) e/ou como um objeto "answers"
      * (várias de uma vez); os dois formatos podem ser usados juntos.
+     *
+     * Tolera clientes/ferramentas de automação que mandam o corpo em JSON
+     * mas sem o header Content-Type: application/json (ou com um valor
+     * diferente) — nesse caso o corpo é decodificado manualmente.
      */
     public function upsertRespondent(Request $request): JsonResponse
     {
+        if (! $request->isJson() && $request->getContent() !== '') {
+            $decoded = json_decode($request->getContent(), true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $request->merge($decoded);
+            }
+        }
+
         if (is_string($request->input('completed'))) {
             $normalized = filter_var($request->input('completed'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
