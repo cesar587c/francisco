@@ -8,82 +8,68 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Endpoints usados pelo bot do WhatsApp (processo externo em Node.js) para
- * alimentar o dashboard: criar respondentes, salvar respostas e atualizar
- * o andamento da conversa.
+ * Endpoint usado pelo bot do WhatsApp (processo externo em Node.js) para
+ * alimentar o dashboard: cria/atualiza o respondente, salva respostas e
+ * atualiza o andamento da conversa, tudo em uma única chamada.
  */
 class IngestController extends Controller
 {
     /**
      * POST /api/ingest/respondents
-     * Cria o respondente se não existir (phone é único) ou apenas atualiza o nome.
+     *
+     * Pode ser chamado várias vezes ao longo da conversa: a cada chamada,
+     * cria o respondente se ainda não existir (phone é a chave única),
+     * atualiza o nome, grava/atualiza as respostas informadas em "answers"
+     * e recalcula o andamento da conversa — a menos que conversation_step
+     * ou completed sejam informados explicitamente.
      */
     public function upsertRespondent(Request $request): JsonResponse
     {
         $data = $request->validate([
             'phone' => ['required', 'string'],
             'name' => ['required', 'string'],
+            'answers' => ['sometimes', 'array'],
+            'answers.*' => ['nullable', 'string'],
+            'conversation_step' => ['sometimes', 'integer', 'min:0', 'max:4'],
+            'completed' => ['sometimes', 'boolean'],
         ]);
 
         $respondent = Respondent::firstOrNew(['phone' => $data['phone']]);
+        $isNew = ! $respondent->exists;
+
         $respondent->name = $data['name'];
 
-        if (! $respondent->exists) {
+        if ($isNew) {
             $respondent->conversation_step = Respondent::STEP_WELCOME;
             $respondent->completed = false;
         }
 
         $respondent->save();
 
-        return response()->json($respondent);
-    }
-
-    /**
-     * POST /api/ingest/responses
-     * Registra uma resposta (resposta_1, resposta_2, etc.) de um respondente existente.
-     */
-    public function storeResponse(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'phone' => ['required', 'string'],
-            'question' => ['required', 'string'],
-            'answer' => ['required', 'string'],
-        ]);
-
-        $respondent = Respondent::where('phone', $data['phone'])->first();
-
-        if (! $respondent) {
-            return response()->json(['error' => 'Respondente não encontrado.'], 404);
+        foreach ($data['answers'] ?? [] as $question => $answer) {
+            $respondent->responses()->updateOrCreate(
+                ['question' => $question],
+                ['answer' => $answer]
+            );
         }
 
-        $response = $respondent->responses()->create([
-            'question' => $data['question'],
-            'answer' => $data['answer'],
-        ]);
-
-        return response()->json($response, 201);
-    }
-
-    /**
-     * PATCH /api/ingest/respondents/{phone}/state
-     * Atualiza o passo da conversa e se a pesquisa foi concluída.
-     */
-    public function updateState(Request $request, string $phone): JsonResponse
-    {
-        $data = $request->validate([
-            'conversation_step' => ['required', 'integer', 'min:0', 'max:4'],
-            'completed' => ['required', 'boolean'],
-            'name' => ['sometimes', 'string'],
-        ]);
-
-        $respondent = Respondent::where('phone', $phone)->first();
-
-        if (! $respondent) {
-            return response()->json(['error' => 'Respondente não encontrado.'], 404);
+        if (array_key_exists('conversation_step', $data)) {
+            $respondent->conversation_step = $data['conversation_step'];
+        } elseif (! empty($data['answers'])) {
+            $respondent->conversation_step = min(
+                Respondent::STEP_COMPLETED,
+                $respondent->responses()->count()
+            );
         }
 
-        $respondent->fill($data)->save();
+        if (array_key_exists('completed', $data)) {
+            $respondent->completed = $data['completed'];
+        } elseif ($respondent->conversation_step >= Respondent::STEP_COMPLETED) {
+            $respondent->completed = true;
+        }
 
-        return response()->json($respondent);
+        $respondent->save();
+
+        return response()->json($respondent->load('responses'));
     }
 }

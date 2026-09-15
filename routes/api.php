@@ -16,6 +16,4 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware('ingest.token')->prefix('ingest')->group(function () {
     Route::post('/respondents', [IngestController::class, 'upsertRespondent']);
-    Route::post('/responses', [IngestController::class, 'storeResponse']);
-    Route::patch('/respondents/{phone}/state', [IngestController::class, 'updateState']);
 });

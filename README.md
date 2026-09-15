@@ -59,9 +59,11 @@ alterar `ADMIN_PASSWORD` no `.env`.
 | GET | `/dashboard-data` | JSON com estatísticas, respondentes e último relatório |
 | POST | `/dashboard-data` | Gera um novo relatório do espectro político |
 | DELETE | `/respondents/{id}` | Remove um respondente e suas respostas |
-| POST | `/api/ingest/respondents` | Cria/atualiza respondente por telefone |
-| POST | `/api/ingest/responses` | Salva uma resposta |
-| PATCH | `/api/ingest/respondents/{phone}/state` | Atualiza passo/conclusão da conversa |
+| POST | `/api/ingest/respondents` | Endpoint único: cria/atualiza respondente por telefone, grava respostas (`answers`) e atualiza passo/conclusão da conversa |
 
-As três rotas de `/api/ingest/*` exigem o header `X-Ingest-Token` com o
-valor mostrado na aba Integração do painel.
+A rota `/api/ingest/respondents` exige o header `X-Ingest-Token` com o
+valor mostrado na aba Integração do painel. Pode ser chamada várias vezes ao
+longo da conversa (uma por mensagem), enviando `phone` + `name` sempre, e
+`answers` (objeto `{"pergunta": "resposta"}`) conforme as respostas chegam.
+`conversation_step` e `completed` são opcionais — se omitidos, o sistema
+calcula sozinho a partir da quantidade de respostas recebidas.

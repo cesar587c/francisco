@@ -444,32 +444,15 @@
 
                     <div class="endpoint-block">
                         <div><span class="method-badge method-post">POST</span></div>
-                        <p class="endpoint-desc">Cria ou atualiza um respondente pelo telefone (primeira mensagem).</p>
+                        <p class="endpoint-desc">Único endpoint: cria/atualiza o respondente, grava as respostas enviadas em <code>answers</code> e recalcula o andamento da conversa. Pode ser chamado várias vezes — a cada mensagem — mandando só o que mudou.</p>
                         <div class="code-row">
                             <code>{{ $apiBaseUrl }}/respondents</code>
                             <button class="btn-icon" data-copy="{{ $apiBaseUrl }}/respondents" title="Copiar"><svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg></button>
                         </div>
-                        <p class="endpoint-body">Body: <code>{"phone": "5561999999999", "name": "Maria Souza"}</code></p>
-                    </div>
-
-                    <div class="endpoint-block">
-                        <div><span class="method-badge method-post">POST</span></div>
-                        <p class="endpoint-desc">Salva uma resposta (pergunta 1 ou 2) de um respondente já criado.</p>
-                        <div class="code-row">
-                            <code>{{ $apiBaseUrl }}/responses</code>
-                            <button class="btn-icon" data-copy="{{ $apiBaseUrl }}/responses" title="Copiar"><svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg></button>
-                        </div>
-                        <p class="endpoint-body">Body: <code>{"phone": "5561999999999", "question": "resposta_1", "answer": "..."}</code></p>
-                    </div>
-
-                    <div class="endpoint-block">
-                        <div><span class="method-badge method-patch">PATCH</span></div>
-                        <p class="endpoint-desc">Atualiza o passo da conversa (0–4) e se a pesquisa foi concluída.</p>
-                        <div class="code-row">
-                            <code>{{ $apiBaseUrl }}/respondents/{phone}/state</code>
-                            <button class="btn-icon" data-copy="{{ $apiBaseUrl }}/respondents/{phone}/state" title="Copiar"><svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="10" rx="1.5"/><path d="M4.5 13V5.5A1.5 1.5 0 0 1 6 4h7"/></svg></button>
-                        </div>
-                        <p class="endpoint-body">Body: <code>{"conversation_step": 4, "completed": true}</code></p>
+                        <p class="endpoint-body">1ª mensagem: <code>{"phone": "5561999999999", "name": "Maria Souza"}</code></p>
+                        <p class="endpoint-body">A cada resposta: <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_1": "Sim"}}</code></p>
+                        <p class="endpoint-body">Última resposta (fecha a pesquisa): <code>{"phone": "5561999999999", "name": "Maria Souza", "answers": {"resposta_2": "Ótimo"}, "completed": true}</code></p>
+                        <p class="code-hint"><code>conversation_step</code> (0–4) e <code>completed</code> são opcionais — se não forem enviados, o sistema calcula sozinho a partir da quantidade de respostas em <code>answers</code>.</p>
                     </div>
                 </div>
             </div>
